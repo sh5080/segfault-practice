@@ -12,3 +12,8 @@ export interface User {
   updated_at: Date;
   deleted_at: Date;
 }
+export interface UserToken {
+  userId: number;
+  refreshToken: string;
+  created_at: Date;
+}
