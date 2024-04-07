@@ -10,7 +10,7 @@ export interface Config {
     JWT_ISSUER: string;
   };
   database: {
-    HOST: string;
+    DB_HOST: string;
     DB_PORT: number;
     USER: string;
     PASSWORD: string;

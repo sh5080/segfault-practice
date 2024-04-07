@@ -1,12 +1,12 @@
 import { Sequelize } from "sequelize";
 import config from "../config";
 
-const { HOST, DB_PORT, USER, PASSWORD, NAME } = config.database;
+const { DB_HOST, DB_PORT, USER, PASSWORD, NAME } = config.database;
 
 // 첫 번째 DB에 대한 연결 설정
 export const mysqlDB = new Sequelize({
   dialect: "mysql",
-  host: HOST,
+  host: DB_HOST,
   port: DB_PORT,
   username: USER,
   password: PASSWORD,

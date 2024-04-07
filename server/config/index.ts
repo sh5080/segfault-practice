@@ -14,7 +14,7 @@ const validateEnv = Joi.object({
   JWT_REFRESH_EXPIRESIN: Joi.string().required(),
   JWT_ISSUER: Joi.string().required(),
 
-  HOST: Joi.string().required(),
+  DB_HOST: Joi.string().required(),
   DB_PORT: Joi.number().required(),
   USERNAME: Joi.string().required(),
   PASSWORD: Joi.string().required(),
@@ -40,7 +40,7 @@ const config: Config = {
     JWT_ISSUER: envVars.JWT_ISSUER,
   },
   database: {
-    HOST: envVars.HOST,
+    DB_HOST: envVars.DB_HOST,
     DB_PORT: envVars.PORT,
     USER: envVars.USERNAME,
     PASSWORD: envVars.PASSWORD,
