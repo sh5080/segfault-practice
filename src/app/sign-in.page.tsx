@@ -1,5 +1,5 @@
 import React from "react";
-import { SignInForm } from "component/sign-in-form";
+import { SignInForm } from "component/sign/sign-in-form";
 
 export default function SignInPage() {
   return (
@@ -12,7 +12,6 @@ export default function SignInPage() {
       }}
     >
       <div style={{ width: "50%", maxWidth: "400px" }}>
-        {" "}
         <SignInForm />
       </div>
     </div>

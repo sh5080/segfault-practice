@@ -54,7 +54,9 @@ export const login = async (
         .cookie("access", tokens.accessToken, accessOptions)
         .cookie("refresh", tokens.refreshToken, refreshOptions)
         .status(successCode.OK)
-        .json(isSuccess(successCode.OK, successMessage.LOGIN_SUCCESS));
+        .json(
+          isSuccess(successCode.OK, successMessage.LOGIN_SUCCESS, userData.name)
+        );
     } else {
       throw new UnauthorizedException("회원정보와 일치하지 않습니다.");
     }

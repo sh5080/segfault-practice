@@ -15,6 +15,7 @@ import { Link as RouterLink, useNavigate } from "react-router-dom";
 import { useSetRecoilState } from "recoil";
 import { paths } from "route/path";
 import { userState } from "state/user.state";
+import { SignUpForm } from "./sign-up-form";
 
 export function SignInForm(): React.JSX.Element {
   const setUser = useSetRecoilState(userState);
@@ -58,6 +59,7 @@ export function SignInForm(): React.JSX.Element {
       return;
     }
   };
+  const [openModal, setOpenModal] = React.useState(false);
 
   return (
     <Stack spacing={4}>
@@ -122,9 +124,12 @@ export function SignInForm(): React.JSX.Element {
           <Button disabled={isPending} type="submit" variant="contained">
             로그인
           </Button>
+          <Button onClick={() => setOpenModal(true)} variant="outlined">
+            회원가입
+          </Button>
         </Stack>
       </form>
-      <Alert color="warning">회원가입은 별도로 문의해주세요. </Alert>
+      <SignUpForm isOpen={openModal} handleClose={() => setOpenModal(false)} />
     </Stack>
   );
 }
