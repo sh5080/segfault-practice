@@ -1,26 +1,42 @@
-import { noResultError } from "../middlewares/error.middleware";
+import {
+  invalidInputError,
+  noResultError,
+} from "../middlewares/error.middleware";
 import { mysqlDB } from "../loaders/db.loader";
 import { QueryTypes } from "sequelize";
 import { LoginDto, UpdateTokenDto } from "../dtos/auth.dto";
 import { User } from "type/user.type";
 import { UserToken } from "../types/data/user.type";
 
+import bcrypt from "bcrypt";
+
 export const getUserToLogin = async (dto: LoginDto): Promise<User> => {
   try {
-    const query = `
-    SELECT *
-    FROM user
-    WHERE email = :email
-      AND password = :password
+    const { email, password } = dto;
+
+    const userQuery = `
+      SELECT *
+      FROM user
+      WHERE email = :email
     `;
-    const data: User[] = await mysqlDB.query(query, {
+    const userData: User[] = await mysqlDB.query(userQuery, {
       type: QueryTypes.SELECT,
-      replacements: { email: dto.email, password: dto.password },
+      replacements: { email },
     });
-    if (!data || data.length === 0) {
-      noResultError("존재하지 않는 아이디이거나 비밀번호가 일치하지 않습니다.");
+    if (!userData || userData.length === 0) {
+      noResultError("존재하지 않는 아이디입니다.");
     }
-    return data[0];
+
+    const hashedPasswordFromDB = userData[0].password;
+    const passwordMatches = await bcrypt.compare(
+      password,
+      hashedPasswordFromDB
+    );
+    if (!passwordMatches) {
+      invalidInputError("비밀번호가 일치하지 않습니다.");
+    }
+
+    return userData[0];
   } catch (error) {
     console.error(error);
     throw error;

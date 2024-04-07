@@ -1,7 +1,4 @@
-import { CommonError } from "../types/error.type";
 import {
-  errorCode,
-  errorMessage,
   invalidInputError,
   noResultError,
 } from "../middlewares/error.middleware";
@@ -9,6 +6,7 @@ import { mysqlDB } from "../loaders/db.loader";
 import { QueryTypes } from "sequelize";
 import { User } from "type/user.type";
 import { SignupDto } from "../dtos/user.dto";
+import bcrypt from "bcrypt";
 
 export const createUser = async (dto: SignupDto): Promise<User> => {
   try {
@@ -25,12 +23,14 @@ export const createUser = async (dto: SignupDto): Promise<User> => {
     if (existingUserCount.length > 0) {
       invalidInputError("해당 이메일은 이미 사용 중입니다.");
     }
+    const hashedPassword = await bcrypt.hash(password, 10);
+
     const createUserQuery = `
       INSERT INTO user (name, email, password)
       VALUES (:name, :email, :password)
     `;
     await mysqlDB.query(createUserQuery, {
-      replacements: { name, email, password },
+      replacements: { name, email, password: hashedPassword },
     });
 
     const newUserQuery = `
