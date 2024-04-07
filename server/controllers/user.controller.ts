@@ -4,8 +4,29 @@ import {
   successCode,
   successMessage,
 } from "../middlewares/error.middleware";
-import { getUserByUserId } from "../services/user.service";
+import { getUserByUserId, createUser } from "../services/user.service";
 import { AuthRequest } from "../types/request.type";
+import { SignupDto } from "../dtos/user.dto";
+
+export const signup = async (
+  req: AuthRequest,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const dto: SignupDto = req.body;
+
+    const userData = await createUser(dto);
+    res
+      .status(200)
+      .json(
+        isSuccess(successCode.OK, successMessage.READ_POST_SUCCESS, userData)
+      );
+  } catch (error) {
+    console.error(error);
+    next(error);
+  }
+};
 
 export const getUser = async (
   req: AuthRequest,
