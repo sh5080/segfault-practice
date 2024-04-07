@@ -7,17 +7,15 @@ export interface loginParams {
 }
 
 class AuthClient {
-  async login(
-    params: loginParams
-  ): Promise<{ error?: string; nickname?: string; role?: string }> {
+  async login(params: loginParams): Promise<{ error?: string; name?: string }> {
     try {
       const { email, password } = params;
 
       const loginRes = await loginApi(email, password);
       console.log("로그인시 확인되는 값: ", loginRes);
 
-      const { nickname, role } = loginRes.data;
-      return { nickname, role };
+      const { name } = loginRes.data;
+      return { name };
     } catch (err) {
       errorHandler(err);
     }

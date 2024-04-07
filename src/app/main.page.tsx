@@ -5,7 +5,7 @@ import { useUser } from "state/user.state";
 import { User } from "type/user.type";
 
 export default function MainPage() {
-  const { nickname, role }: User = useUser();
+  const { name }: User = useUser();
   const handleLogout = () => {
     window.location.href = paths.auth.signIn;
   };
@@ -22,7 +22,7 @@ export default function MainPage() {
             component="div"
             sx={{ marginRight: "20px" }}
           >
-            {nickname} ({role})
+            {name}님 환영합니다.
           </Typography>
           <Button color="inherit" onClick={handleLogout}>
             Logout

@@ -5,5 +5,5 @@ interface Response {
 }
 
 export interface LoginResponse extends Response {
-  data: { nickname: string; role: string };
+  data: { name: string };
 }

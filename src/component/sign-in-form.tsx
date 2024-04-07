@@ -48,8 +48,8 @@ export function SignInForm(): React.JSX.Element {
     try {
       const loginRes = await authClient.login({ email, password });
 
-      if (loginRes.nickname && loginRes.role) {
-        setUser({ nickname: loginRes.nickname, role: loginRes.role });
+      if (loginRes.name) {
+        setUser({ name: loginRes.name });
         navigate(paths.home);
       }
     } catch (err) {

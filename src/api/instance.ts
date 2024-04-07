@@ -49,7 +49,7 @@ class ApiManager {
         }
         const errData = error.response.data;
         if (errData.statusCode === 401) {
-          const user = { nickname: null, role: null };
+          const user = { name: null };
           localStorage.setItem("segfault-persist", JSON.stringify({ user }));
 
           throw new ClientError("로그인후 이용 가능합니다.");

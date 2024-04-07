@@ -11,9 +11,9 @@ import { paths } from "./path";
 import { useUser } from "state/user.state";
 
 export function Router() {
-  const { nickname } = useUser();
+  const { name } = useUser();
 
-  if (!nickname) {
+  if (!name) {
     return (
       <Routes>
         <Route path={paths.home} element={<SignInPage />} />
