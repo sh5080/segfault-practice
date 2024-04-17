@@ -1,5 +1,6 @@
 export interface Config {
   PORT: number;
+  FRONT_URL: string;
   jwt: {
     JWT_ACCESS_SECRET: string;
     JWT_REFRESH_SECRET: string;
@@ -10,6 +11,10 @@ export interface Config {
     JWT_ISSUER: string;
   };
   database: {
+    SSH_HOST: string;
+    SSH_PORT: string;
+    SSH_USERNAME: string;
+    SSH_PASSWORD: string;
     DB_HOST: string;
     DB_PORT: number;
     USER: string;

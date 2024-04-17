@@ -5,7 +5,8 @@ import { Config } from "../types/config.type";
 dotenv.config();
 
 const validateEnv = Joi.object({
-  PORT: Joi.number().required(),
+  SERVER_PORT: Joi.number().required(),
+  FRONT_URL: Joi.string().required(),
   JWT_ACCESS_SECRET: Joi.string().required(),
   JWT_REFRESH_SECRET: Joi.string().required(),
   JWT_TYPE: Joi.string().required(),
@@ -13,6 +14,11 @@ const validateEnv = Joi.object({
   JWT_ACCESS_EXPIRESIN: Joi.string().required(),
   JWT_REFRESH_EXPIRESIN: Joi.string().required(),
   JWT_ISSUER: Joi.string().required(),
+
+  SSH_HOST: Joi.string().required(),
+  SSH_PORT: Joi.string().required(),
+  SSH_USERNAME: Joi.string().required(),
+  SSH_PASSWORD: Joi.string().required(),
 
   DB_HOST: Joi.string().required(),
   DB_PORT: Joi.number().required(),
@@ -29,7 +35,8 @@ if (error) {
 }
 
 const config: Config = {
-  PORT: envVars.PORT,
+  PORT: envVars.SERVER_PORT,
+  FRONT_URL: envVars.FRONT_URL,
   jwt: {
     JWT_ACCESS_SECRET: envVars.JWT_ACCESS_SECRET,
     JWT_REFRESH_SECRET: envVars.JWT_REFRESH_SECRET,
@@ -40,6 +47,10 @@ const config: Config = {
     JWT_ISSUER: envVars.JWT_ISSUER,
   },
   database: {
+    SSH_HOST: envVars.SSH_HOST,
+    SSH_PORT: envVars.SSH_PORT,
+    SSH_USERNAME: envVars.SSH_USERNAME,
+    SSH_PASSWORD: envVars.SSH_PASSWORD,
     DB_HOST: envVars.DB_HOST,
     DB_PORT: envVars.PORT,
     USER: envVars.USERNAME,
