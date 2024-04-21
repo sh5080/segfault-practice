@@ -30,8 +30,7 @@
     "react-scripts": "5.0.1",
     "recoil": "^0.7.7",
     "recoil-persist": "^5.1.0",
-    "sequelize": "^6.35.1",
-    "ssh-tunneling": "^1.1.23",
+    "tunnel-ssh": "^5.1.2",
     "typescript": "^4.9.5"
   },
   "scripts": {
@@ -39,10 +38,12 @@
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",
+    "start:build": "tsc",
     "start:prod": "npm run build && pm2 reload 0 && pm2 flush && pm2 log",
-    "start:dev": "nodemon server/server.ts",
+    "start:dev": "NODE_ENV=development nodemon server/server.ts",
     "update:prod": "pm2 kill && npm run build && npm run deploy:dev",
-    "deploy:dev": "pm2 start dist/server.js"
+    "deploy:dev": "NODE_ENV=development pm2 start dist/server/server.js",
+    "start:test": "node dist/server/server.js"
   },
   "eslintConfig": {
     "extends": [
@@ -67,6 +68,7 @@
     "@types/cors": "^2.8.17",
     "@types/jsonwebtoken": "^9.0.6",
     "@types/react-dom": "^18.2.24",
+    "@types/ssh2": "^1.15.0",
     "@types/uuid": "^9.0.8",
     "ts-node": "^10.9.1"
   }

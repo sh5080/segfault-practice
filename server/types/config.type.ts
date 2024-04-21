@@ -12,7 +12,7 @@ export interface Config {
   };
   database: {
     SSH_HOST: string;
-    SSH_PORT: string;
+    SSH_PORT: number;
     SSH_USERNAME: string;
     SSH_PASSWORD: string;
     DB_HOST: string;

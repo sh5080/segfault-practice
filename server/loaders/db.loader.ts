@@ -1,12 +1,11 @@
-import { Sequelize } from "sequelize";
 import config from "../config";
-
-import { SshTunnel } from "ssh-tunneling";
+import mysql from "mysql2";
+import { Client } from "ssh2";
+const sshClient = new Client();
 
 const {
   SSH_HOST,
   SSH_PORT,
-  SSH_USERNAME,
   SSH_PASSWORD,
   DB_HOST,
   DB_PORT,
@@ -14,48 +13,72 @@ const {
   PASSWORD,
   NAME,
 } = config.database;
-// SSH 터널링 설정
-const sshConfig = {
-  host: SSH_HOST,
-  port: SSH_PORT,
-  username: SSH_USERNAME,
-  password: SSH_PASSWORD,
-};
-const client = new SshTunnel(sshConfig);
 
-// MySQL 연결 설정
-const mysqlDB = new Sequelize({
-  dialect: "mysql",
+const dbServer = {
   host: DB_HOST,
   port: DB_PORT,
-  username: USER,
+  user: USER,
   password: PASSWORD,
   database: NAME,
-  logging: false,
-});
+};
+// SSH 터널링 설정
 
-// 데이터베이스 연결 테스트 함수
-async function testDatabaseConnection() {
+const forwardConfig = {
+  srcHost: DB_HOST,
+  srcPort: DB_PORT,
+  dstHost: dbServer.host,
+  dstPort: dbServer.port,
+};
+const tunnelConfig = {
+  host: SSH_HOST,
+  port: SSH_PORT,
+  username: USER,
+  password: SSH_PASSWORD,
+};
+let mysqlPool: mysql.Pool;
+
+// MySQL 연결을 초기화하는 함수
+export async function dbLoader(): Promise<void> {
   try {
-    // MySQL 연결 테스트
-    await mysqlDB.authenticate();
-    console.log("Connected to MySQL database successfully!");
-  } catch (error) {
-    console.error("Unable to connect to the MySQL database:", error);
-  }
-}
-
-// SSH 터널링 설정 및 MySQL 연결을 초기화하는 함수
-export async function dbLoader() {
-  try {
-    const forwardInfo = await client.forwardOut(`3000:${SSH_HOST}:3000`);
-    console.log("#### SSH Tunneling Info:", forwardInfo);
-
-    await testDatabaseConnection();
+    if (process.env.NODE_ENV === "development") {
+      sshClient
+        .on("ready", () => {
+          sshClient.forwardOut(
+            forwardConfig.srcHost,
+            forwardConfig.srcPort,
+            forwardConfig.dstHost,
+            forwardConfig.dstPort,
+            (err, stream) => {
+              if (err) throw err;
+              const updatedDbServer = {
+                ...dbServer,
+                stream,
+              };
+              mysqlPool = mysql.createPool(updatedDbServer);
+              console.log("MySQL Pool initialized.");
+            }
+          );
+        })
+        .connect(tunnelConfig);
+    } else {
+      mysqlPool = mysql.createPool(dbServer);
+      console.log("MySQL Pool initialized.");
+    }
   } catch (error) {
     console.error("Unable to initialize database:", error);
     throw error;
   }
 }
 
-export { mysqlDB };
+// MySQL 연결을 가져오는 함수
+export async function getDBConnection() {
+  try {
+    if (!mysqlPool) {
+      throw new Error("MySQL 연결 풀이 초기화되지 않았습니다.");
+    }
+    return mysqlPool.promise();
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+}

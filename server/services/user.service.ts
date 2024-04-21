@@ -2,8 +2,8 @@ import {
   invalidInputError,
   noResultError,
 } from "../middlewares/error.middleware";
-import { mysqlDB } from "../loaders/db.loader";
-import { QueryTypes } from "sequelize";
+import { getDBConnection } from "../loaders/db.loader";
+
 import { User } from "type/user.type";
 import { SignupDto } from "../dtos/user.dto";
 import bcrypt from "bcrypt";
@@ -11,41 +11,44 @@ import bcrypt from "bcrypt";
 export const createUser = async (dto: SignupDto): Promise<User> => {
   try {
     const { name, email, password } = dto;
+    const connection = await getDBConnection();
     const userExistsQuery = `
     SELECT COUNT(*)
     FROM user
     WHERE email = :email    
     `;
-    const existingUserCount = await mysqlDB.query(userExistsQuery, {
-      type: QueryTypes.SELECT,
-      replacements: { email },
-    });
-    if (existingUserCount.length > 0) {
+    const [existingUserResult] = await connection.execute(userExistsQuery, [
+      email,
+    ]);
+    const existingUserCount: number = existingUserResult[0]["COUNT(*)"];
+
+    if (existingUserCount > 0) {
       invalidInputError("해당 이메일은 이미 사용 중입니다.");
     }
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    const createUserQuery = `
+    const insertUserQuery = `
       INSERT INTO user (name, email, password)
-      VALUES (:name, :email, :password)
+      VALUES (?, ?, ?)
     `;
-    await mysqlDB.query(createUserQuery, {
-      replacements: { name, email, password: hashedPassword },
-    });
+
+    // 사용자 추가
+    await connection.execute(insertUserQuery, [name, email, hashedPassword]);
 
     const newUserQuery = `
       SELECT *
       FROM user
       WHERE email = :email
     `;
-    const newUser: User[] = await mysqlDB.query(newUserQuery, {
-      type: QueryTypes.SELECT,
-      replacements: { email },
-    });
-    if (!newUser || newUser.length === 0) {
-      throw new Error("사용자 생성에 실패했습니다. 다시 시도해주세요.");
+    // 새로운 사용자 정보 조회
+    const [newUserResult] = await connection.execute(newUserQuery, [email]);
+    const newUser: User = newUserResult[0];
+
+    if (!newUser) {
+      throw new Error("사용자 생성에 실패했습니다.");
     }
-    return newUser[0];
+
+    return newUser;
   } catch (error) {
     console.error(error);
     throw error;
@@ -54,19 +57,21 @@ export const createUser = async (dto: SignupDto): Promise<User> => {
 
 export const getUserByUserId = async (userId: number): Promise<User> => {
   try {
+    const connection = await getDBConnection();
+
     const query = `
     SELECT *
     FROM user
     WHERE id = :userId    
     `;
-    const data: User[] = await mysqlDB.query(query, {
-      type: QueryTypes.SELECT,
-      replacements: { userId },
-    });
-    if (!data || data.length === 0) {
+
+    const [result] = await connection.execute(query, [userId]);
+
+    if (!result) {
       noResultError("조회된 결과가 없습니다.");
     }
-    return data[0];
+    const userData: User = result[0];
+    return userData;
   } catch (error) {
     console.error(error);
     throw error;

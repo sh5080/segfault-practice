@@ -52,7 +52,7 @@ const config: Config = {
     SSH_USERNAME: envVars.SSH_USERNAME,
     SSH_PASSWORD: envVars.SSH_PASSWORD,
     DB_HOST: envVars.DB_HOST,
-    DB_PORT: envVars.PORT,
+    DB_PORT: envVars.DB_PORT,
     USER: envVars.USERNAME,
     PASSWORD: envVars.PASSWORD,
     NAME: envVars.DATABASE,
