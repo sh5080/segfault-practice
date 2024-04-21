@@ -3,6 +3,7 @@ import routeLoader from "./route.loader";
 import { errorHandler } from "../middlewares/error.middleware";
 import responseTime from "../middlewares/response.middleware";
 import path from "path";
+import cors from "cors";
 
 export default async function expressLoader(
   app: Application
@@ -12,6 +13,13 @@ export default async function expressLoader(
     app.use(express.json());
     app.use(express.urlencoded({ extended: true }));
     app.use(express.static(path.join(__dirname, "uploads")));
+
+    app.use(
+      cors({
+        origin: process.env.FRONT_URL,
+        credentials: true,
+      })
+    );
 
     routeLoader(app);
     app.use(errorHandler);
