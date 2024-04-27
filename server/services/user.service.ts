@@ -4,7 +4,7 @@ import {
 } from "../middlewares/error.middleware";
 import { getDBConnection } from "../loaders/db.loader";
 
-import { User } from "type/user.type";
+import { User, UserProfile } from "../model/user.model";
 import { SignupDto } from "../dtos/user.dto";
 import bcrypt from "bcrypt";
 
@@ -72,6 +72,29 @@ export const getUserByUserId = async (userId: number): Promise<User> => {
     }
     const userData: User = result[0];
     return userData;
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+};
+
+export const getUserProfile = async (userId: number): Promise<UserProfile> => {
+  try {
+    const connection = await getDBConnection();
+
+    const query = `
+    SELECT *
+    FROM user_profile
+    WHERE user_id = :userId    
+    `;
+
+    const [result] = await connection.execute(query, [userId]);
+
+    if (!result) {
+      noResultError("조회된 결과가 없습니다.");
+    }
+    const userProfileData: UserProfile = result[0];
+    return userProfileData;
   } catch (error) {
     console.error(error);
     throw error;
