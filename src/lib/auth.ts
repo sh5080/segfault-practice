@@ -1,15 +1,12 @@
-import { loginApi, logoutApi, signupApi } from "api/auth";
+import AuthApi from "api/auth";
 import errorHandler from "./error-handler";
-import { LoginDto, SignupDto } from "type/dto/auth.dto";
+import { LoginDto } from "type/dto/auth.dto";
 
 class AuthClient {
   async login(dto: LoginDto): Promise<{ error?: string; name?: string }> {
     try {
       const { email, password } = dto;
-
-      const loginRes = await loginApi(email, password);
-      console.log("로그인시 확인되는 값: ", loginRes);
-
+      const loginRes = await AuthApi.login(email, password);
       const { name } = loginRes.data;
       return { name };
     } catch (err) {
@@ -18,22 +15,9 @@ class AuthClient {
   }
 
   async logout(): Promise<{ error?: string }> {
-    await logoutApi();
+    await AuthApi.logout();
     localStorage.removeItem("sixteen-persist");
     return {};
-  }
-  async signup(dto: SignupDto): Promise<{ error?: string; name?: string }> {
-    try {
-      const { name, email, password } = dto;
-
-      const signupRes = await signupApi(name, email, password);
-      console.log("로그인시 확인되는 값: ", signupRes);
-
-      const data = signupRes.data;
-      return data;
-    } catch (err) {
-      errorHandler(err);
-    }
   }
 }
 
