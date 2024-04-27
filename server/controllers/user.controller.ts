@@ -17,10 +17,15 @@ export const signup = async (
     const dto: SignupDto = req.body;
 
     const userData = await createUser(dto);
+    const resultData = { userId: userData.id };
     res
-      .status(200)
+      .status(successCode.CREATED)
       .json(
-        isSuccess(successCode.OK, successMessage.READ_POST_SUCCESS, userData)
+        isSuccess(
+          successCode.CREATED,
+          successMessage.CREATE_POST_SUCCESS,
+          resultData
+        )
       );
   } catch (error) {
     console.error(error);

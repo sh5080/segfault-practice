@@ -5,18 +5,19 @@ import FormControl from "@mui/material/FormControl";
 import InputLabel from "@mui/material/InputLabel";
 import OutlinedInput from "@mui/material/OutlinedInput";
 import Stack from "@mui/material/Stack";
-import Typography from "@mui/material/Typography";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { isNotEmpty, isValidEmail } from "lib/validate";
-import { authClient } from "lib/auth";
+import { isNotEmpty, isValidEmail, isValidPassword } from "lib/validate";
 import { SignupDto } from "type/dto/auth.dto";
 import { CommonModal } from "component/common/common-modal";
 import { Card, CardContent } from "@mui/material";
+import UserApi from "api/user";
 
 export function SignUpForm({ isOpen, handleClose }): React.JSX.Element {
   const [showPassword, setShowPassword] = useState<boolean>(false);
+  const [showPasswordConfirm, setShowPasswordConfirm] =
+    useState<boolean>(false);
   const [isPending, setIsPending] = useState<boolean>(false);
   const {
     control,
@@ -29,45 +30,60 @@ export function SignUpForm({ isOpen, handleClose }): React.JSX.Element {
     setIsPending(true);
 
     const { name, email, password, passwordConfirm } = dto;
-    if (!isNotEmpty(name)) {
-      setError("root", { message: "이름을 입력하세요." });
+
+    const setErrorAndFinish = (message: string) => {
+      setError("root", { message });
       setIsPending(false);
-      return;
-    }
-    if (!isNotEmpty(email)) {
-      setError("root", { message: "이메일을 입력하세요." });
-      setIsPending(false);
-      return;
-    }
+    };
+
+    const validateField = (
+      value: string,
+      fieldName: string,
+      errorMessage: string
+    ) => {
+      if (!isNotEmpty(value)) {
+        setErrorAndFinish(errorMessage);
+        return false;
+      }
+      return true;
+    };
+
+    if (!validateField(name, "이름", "이름을 입력하세요.")) return;
+    if (!validateField(email, "이메일", "이메일을 입력하세요.")) return;
     if (!isValidEmail(email)) {
-      setError("root", { message: "유효한 이메일 주소를 입력하세요." });
-      setIsPending(false);
+      setErrorAndFinish("유효한 이메일 주소를 입력하세요.");
       return;
     }
-    if (!isNotEmpty(password)) {
-      setError("root", { message: "패스워드를 입력하세요." });
-      setIsPending(false);
+    if (!validateField(password, "패스워드", "패스워드를 입력하세요.")) return;
+    if (
+      !validateField(
+        passwordConfirm,
+        "패스워드 확인",
+        "패스워드 확인을 입력하세요."
+      )
+    )
       return;
-    }
-    if (!isNotEmpty(passwordConfirm)) {
-      setError("root", { message: "패스워드 확인을 입력하세요." });
-      setIsPending(false);
+    if (!isValidPassword(password) || !isValidPassword(passwordConfirm)) {
+      setErrorAndFinish(
+        `영문, 숫자, 특수문자로 이루어진 8자 이상의 ${
+          !isValidPassword(password) ? "패스워드" : "패스워드 확인"
+        }를 설정해주세요.`
+      );
       return;
     }
     if (password !== passwordConfirm) {
-      setError("root", {
-        message: "패스워드와 패스워드 확인이 일치하지 않습니다..",
-      });
-      setIsPending(false);
+      setErrorAndFinish("패스워드와 패스워드 확인이 일치하지 않습니다.");
       return;
     }
+
     try {
       // 회원가입 API 호출
-      const signupRes = await authClient.signup(dto);
+      const signupRes = await UserApi.signup(dto);
       console.log("회원가입시 응답값!: ", signupRes);
-      // 회원가입 성공 시 리다이렉트 또는 다른 처리 수행
     } catch (err) {
+      console.log("durltjs? ", err);
       setError("root", { type: "server", message: err.message });
+    } finally {
       setIsPending(false);
     }
   };
@@ -82,9 +98,18 @@ export function SignUpForm({ isOpen, handleClose }): React.JSX.Element {
         <Card>
           <CardContent>
             <Stack spacing={4}>
-              <Typography variant="h4">회원가입</Typography>
               <form onSubmit={handleSubmit(onSubmit)}>
                 <Stack spacing={2}>
+                  <Controller
+                    control={control}
+                    name="name"
+                    render={({ field }) => (
+                      <FormControl error={Boolean(errors.email)}>
+                        <InputLabel>이름</InputLabel>
+                        <OutlinedInput {...field} label="이름" type="name" />
+                      </FormControl>
+                    )}
+                  />
                   <Controller
                     control={control}
                     name="email"
@@ -122,6 +147,33 @@ export function SignUpForm({ isOpen, handleClose }): React.JSX.Element {
                           }
                           label="비밀번호"
                           type={showPassword ? "text" : "password"}
+                        />
+                      </FormControl>
+                    )}
+                  />
+                  <Controller
+                    control={control}
+                    name="passwordConfirm"
+                    render={({ field }) => (
+                      <FormControl error={Boolean(errors.passwordConfirm)}>
+                        <InputLabel>비밀번호 확인</InputLabel>
+                        <OutlinedInput
+                          {...field}
+                          endAdornment={
+                            showPasswordConfirm ? (
+                              <Visibility
+                                cursor="pointer"
+                                onClick={() => setShowPasswordConfirm(false)}
+                              />
+                            ) : (
+                              <VisibilityOff
+                                cursor="pointer"
+                                onClick={() => setShowPasswordConfirm(true)}
+                              />
+                            )
+                          }
+                          label="비밀번호 확인"
+                          type={showPasswordConfirm ? "text" : "password"}
                         />
                       </FormControl>
                     )}

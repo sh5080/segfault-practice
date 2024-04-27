@@ -8,3 +8,9 @@ export function isNotEmpty(value: string): boolean {
     return false;
   } else return true;
 }
+
+export function isValidPassword(password: string): boolean {
+  const passwordRegex =
+    /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+  return passwordRegex.test(password);
+}
