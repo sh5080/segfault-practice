@@ -3,8 +3,10 @@ import { ClientError, ServerError } from "type/error.type";
 const errorHandler = (err) => {
   if (err.response) {
     const data = err.response.data;
-    if (data && data.statusCode < 500) {
-      throw new ClientError(data.message);
+    if (data && data.status < 500) {
+      if (data.detail) {
+        throw new ClientError(data.detail);
+      }
     } else {
       throw new ServerError(data.message);
     }
