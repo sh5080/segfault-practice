@@ -34,9 +34,6 @@ class ApiManager {
         return response;
       },
       (error: DefaultAxiosError) => {
-        if (error.response.data.message === "로그인이 필요합니다.") {
-          window.location.href = paths.auth.signIn;
-        }
         if (error.code === "ERR_NETWORK") {
           throw new ServerError(
             `서버에 연결할 수 없습니다. \n인터넷 상태를 확인해주세요.`
@@ -46,6 +43,9 @@ class ApiManager {
           throw new RequestTimeoutException(
             `요청시간이 초과되었습니다. \n지속될 경우 관리자에게 문의해주세요.`
           );
+        }
+        if (error.response.data.message === "로그인이 필요합니다.") {
+          window.location.href = paths.auth.signIn;
         }
         const errData = error.response.data;
         if (errData.statusCode === 401) {
@@ -76,5 +76,5 @@ class ApiManager {
     return this.imageInstance;
   }
 }
-
+ApiManager.initializeInstances();
 export default ApiManager;
