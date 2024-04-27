@@ -4,7 +4,7 @@ import {
 } from "../middlewares/error.middleware";
 
 import { LoginDto } from "../dtos/auth.dto";
-import { User } from "type/user.type";
+import { User } from "../model/user.model";
 import { UserToken } from "../types/data/user.type";
 
 import bcrypt from "bcrypt";
@@ -26,7 +26,6 @@ export const getUserToLogin = async (dto: LoginDto): Promise<User> => {
       noResultError("존재하지 않는 아이디입니다.");
     }
     const userData: User = result[0];
-    console.log("#$$#$$", userData);
     const hashedPasswordFromDB = userData.password;
     const passwordMatches = await bcrypt.compare(
       password,
