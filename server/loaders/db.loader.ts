@@ -36,10 +36,13 @@ const tunnelConfig = {
   password: SSH_PASSWORD,
 };
 let mysqlPool: mysql.Pool;
-
+let connectionCount = 0;
+const MAX_CONNECTION_COUNT = 10;
 // MySQL 연결을 초기화하는 함수
 export async function dbLoader(): Promise<void> {
   try {
+    connectionCount++;
+    console.log("db refresh Count: ", connectionCount);
     if (process.env.NODE_ENV === "development") {
       sshClient
         .on("ready", () => {
@@ -74,11 +77,23 @@ export async function dbLoader(): Promise<void> {
 export async function getDBConnection() {
   try {
     if (!mysqlPool) {
-      throw new Error("MySQL 연결 풀이 초기화되지 않았습니다.");
+      await dbLoader();
+      console.log("db reconnect");
     }
-    return mysqlPool.promise();
+    if (connectionCount >= MAX_CONNECTION_COUNT) {
+      console.log("Reached maximum connection count. Refreshing the pool.");
+      mysqlPool = null;
+      await dbLoader();
+      console.log("db refresh");
+      connectionCount = 0;
+    }
+    const connection = mysqlPool.promise();
+
+    return connection;
   } catch (error) {
     console.error(error);
+    mysqlPool = null;
+    console.log("db refresh");
     throw error;
   }
 }
