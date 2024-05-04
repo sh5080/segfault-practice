@@ -2,7 +2,7 @@ import { AppBar, Button, Container, Toolbar, Typography } from "@mui/material";
 import React from "react";
 import { paths } from "route/path";
 import { useUser } from "state/user.state";
-import { User } from "type/user.type";
+import { User } from "../../server/types/data/user.type";
 
 export default function MainPage() {
   const { name }: User = useUser();
