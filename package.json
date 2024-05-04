@@ -41,7 +41,7 @@
     "start:build": "tsc",
     "start:prod": "npm run build && pm2 reload 0 && pm2 flush && pm2 log",
     "start:dev": "NODE_ENV=development nodemon server/server.ts",
-    "update:prod": "pm2 kill && npm run build && npm run deploy:dev",
+    "update:prod": "pm2 kill && npm run build && npm run start:build && npm run deploy:dev",
     "deploy:dev": "NODE_ENV=development pm2 start dist/server/server.js",
     "start:test": "node dist/server/server.js"
   },
