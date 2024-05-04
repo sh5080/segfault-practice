@@ -32,11 +32,11 @@ stage('Checkout') {
                 script {
                     // SSH deploy using credentials
 try {
-sh 'ssh -i "${DEVELOP_KEY}" ${SEGFAULT_USERNAME}@${SEGFAULT_HOST} -p ${DEVELOP_PORT} \'pwd && cd /root/segfault-practice && git pull origin master && git checkout . && npm install && npm run update:prod\''
+sh 'ssh ${SEGFAULT_USERNAME}@${SEGFAULT_HOST} -p ${DEVELOP_PORT} \'pwd && cd /root/segfault-practice && git pull origin master && git checkout . && npm install && npm run update:prod\''
 
                     }
                   catch (Exception e) {
-sh 'ssh -i "${DEVELOP_KEY}" ${SEGFAULT_USERNAME}@${SEGFAULT_HOST} -p ${DEVELOP_PORT} \'pwd && cd /root/segfault-practice && git pull origin master && git checkout . && export NVM_DIR=~/.nvm && source ~/.nvm/nvm.sh && nvm use --delete-prefix v20.10.0 --silent && npm install && npm run update:prod\''
+sh 'ssh ${SEGFAULT_USERNAME}@${SEGFAULT_HOST} -p ${DEVELOP_PORT} \'pwd && cd /root/segfault-practice && git pull origin master && git checkout . && export NVM_DIR=~/.nvm && source ~/.nvm/nvm.sh && nvm use --delete-prefix v20.10.0 --silent && npm install && npm run update:prod\''
 
                         currentBuild.result = 'FAILURE'
                         error "Build and Deploy 단계에서 오류 발생: ${e.message}"
